@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- 2020-05-24 Sun 22:40 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Computing gap quantities</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="Alex Chen">
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px #eee;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: visible;
+    padding-top: 1.2em;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    background-color: white;
+    top: -10px;
+    right: 10px;
+    padding: 3px;
+    border: 1px solid black;
+  }
+  pre.src:hover:before { display: inline;}
+  /* Languages per Org manual */
+  pre.src-asymptote:before { content: 'Asymptote'; }
+  pre.src-awk:before { content: 'Awk'; }
+  pre.src-C:before { content: 'C'; }
+  /* pre.src-C++ doesn't work in CSS */
+  pre.src-clojure:before { content: 'Clojure'; }
+  pre.src-css:before { content: 'CSS'; }
+  pre.src-D:before { content: 'D'; }
+  pre.src-ditaa:before { content: 'ditaa'; }
+  pre.src-dot:before { content: 'Graphviz'; }
+  pre.src-calc:before { content: 'Emacs Calc'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-fortran:before { content: 'Fortran'; }
+  pre.src-gnuplot:before { content: 'gnuplot'; }
+  pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-hledger:before { content: 'hledger'; }
+  pre.src-java:before { content: 'Java'; }
+  pre.src-js:before { content: 'Javascript'; }
+  pre.src-latex:before { content: 'LaTeX'; }
+  pre.src-ledger:before { content: 'Ledger'; }
+  pre.src-lisp:before { content: 'Lisp'; }
+  pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
+  pre.src-matlab:before { content: 'MATLAB'; }
+  pre.src-mscgen:before { content: 'Mscgen'; }
+  pre.src-ocaml:before { content: 'Objective Caml'; }
+  pre.src-octave:before { content: 'Octave'; }
+  pre.src-org:before { content: 'Org mode'; }
+  pre.src-oz:before { content: 'OZ'; }
+  pre.src-plantuml:before { content: 'Plantuml'; }
+  pre.src-processing:before { content: 'Processing.js'; }
+  pre.src-python:before { content: 'Python'; }
+  pre.src-R:before { content: 'R'; }
+  pre.src-ruby:before { content: 'Ruby'; }
+  pre.src-sass:before { content: 'Sass'; }
+  pre.src-scheme:before { content: 'Scheme'; }
+  pre.src-screen:before { content: 'Gnu Screen'; }
+  pre.src-sed:before { content: 'Sed'; }
+  pre.src-sh:before { content: 'shell'; }
+  pre.src-sql:before { content: 'SQL'; }
+  pre.src-sqlite:before { content: 'SQLite'; }
+  /* additional languages in org.el's org-babel-load-languages alist */
+  pre.src-forth:before { content: 'Forth'; }
+  pre.src-io:before { content: 'IO'; }
+  pre.src-J:before { content: 'J'; }
+  pre.src-makefile:before { content: 'Makefile'; }
+  pre.src-maxima:before { content: 'Maxima'; }
+  pre.src-perl:before { content: 'Perl'; }
+  pre.src-picolisp:before { content: 'Pico Lisp'; }
+  pre.src-scala:before { content: 'Scala'; }
+  pre.src-shell:before { content: 'Shell Script'; }
+  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+  /* additional language identifiers per "defun org-babel-execute"
+       in ob-*.el */
+  pre.src-cpp:before  { content: 'C++'; }
+  pre.src-abc:before  { content: 'ABC'; }
+  pre.src-coq:before  { content: 'Coq'; }
+  pre.src-groovy:before  { content: 'Groovy'; }
+  /* additional language identifiers from org-babel-shell-names in
+     ob-shell.el: ob-shell is the only babel language using a lambda to put
+     the execution function name together. */
+  pre.src-bash:before  { content: 'bash'; }
+  pre.src-csh:before  { content: 'csh'; }
+  pre.src-ash:before  { content: 'ash'; }
+  pre.src-dash:before  { content: 'dash'; }
+  pre.src-ksh:before  { content: 'ksh'; }
+  pre.src-mksh:before  { content: 'mksh'; }
+  pre.src-posh:before  { content: 'posh'; }
+  /* Additional Emacs modes also supported by the LaTeX listings package */
+  pre.src-ada:before { content: 'Ada'; }
+  pre.src-asm:before { content: 'Assembler'; }
+  pre.src-caml:before { content: 'Caml'; }
+  pre.src-delphi:before { content: 'Delphi'; }
+  pre.src-html:before { content: 'HTML'; }
+  pre.src-idl:before { content: 'IDL'; }
+  pre.src-mercury:before { content: 'Mercury'; }
+  pre.src-metapost:before { content: 'MetaPost'; }
+  pre.src-modula-2:before { content: 'Modula-2'; }
+  pre.src-pascal:before { content: 'Pascal'; }
+  pre.src-ps:before { content: 'PostScript'; }
+  pre.src-prolog:before { content: 'Prolog'; }
+  pre.src-simula:before { content: 'Simula'; }
+  pre.src-tcl:before { content: 'tcl'; }
+  pre.src-tex:before { content: 'TeX'; }
+  pre.src-plain-tex:before { content: 'Plain TeX'; }
+  pre.src-verilog:before { content: 'Verilog'; }
+  pre.src-vhdl:before { content: 'VHDL'; }
+  pre.src-xml:before { content: 'XML'; }
+  pre.src-nxml:before { content: 'XML'; }
+  /* add a generic configuration mode; LaTeX export needs an additional
+     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+  pre.src-conf:before { content: 'Configuration File'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .equation-container {
+    display: table;
+    text-align: center;
+    width: 100%;
+  }
+  .equation {
+    vertical-align: middle;
+  }
+  .equation-label {
+    display: table-cell;
+    text-align: right;
+    vertical-align: middle;
+  }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { width: 90%; }
+  /*]]>*/-->
+</style>
+<link rel="stylesheet" type="text/css" href="org.min.css" />
+<script type="text/javascript">
+// @license magnet:?xt=urn:btih:1f739d935676111cfff4b4693e3816e664797050&amp;dn=gpl-3.0.txt GPL-v3-or-Later
+<!--/*--><![CDATA[/*><!--*/
+     function CodeHighlightOn(elem, id)
+     {
+       var target = document.getElementById(id);
+       if(null != target) {
+         elem.cacheClassElem = elem.className;
+         elem.cacheClassTarget = target.className;
+         target.className = "code-highlighted";
+         elem.className   = "code-highlighted";
+       }
+     }
+     function CodeHighlightOff(elem, id)
+     {
+       var target = document.getElementById(id);
+       if(elem.cacheClassElem)
+         elem.className = elem.cacheClassElem;
+       if(elem.cacheClassTarget)
+         target.className = elem.cacheClassTarget;
+     }
+    /*]]>*///-->
+// @license-end
+</script>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
+</head>
+<body>
+<div id="content">
+<header>
+<h1 class="title">Computing gap quantities</h1>
+</header>
+<div id="outline-container-orgd5177cd" class="outline-2">
+<h2 id="orgd5177cd"><span class="section-number-2">1</span> Basic quantities</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+The logic of estimating the plasma quantities near the black hole is as follows. First we start with a \(B\) field estimate from the jet power, with \(B\sim 200\,\mathrm{G}\). This is probably different from the GRMHD models since we assumed a larger \(L_\mathrm{jet}\). We estimate the background \(j_B\) using Maxwell equations assuming steady state:
+</p>
+
+<p>
+\[
+\frac{1}{c}\frac{\partial E}{\partial t} = \nabla\times B - \frac{4\pi}{c}j \quad \Longrightarrow \quad
+j = \frac{c}{4\pi} \nabla\times B
+\]
+</p>
+
+<p>
+We assume the spatial curvature of magnetic field lines would be comparable to \(r_g\) near the black hole, therefore \(\nabla\times B \sim B/r_g\), hence we estimate \(j_B\) as:
+</p>
+
+<p>
+\[
+j_B \sim \frac{c}{4\pi} \frac{B}{r_g} \approx 4.8\times 10^{-4}\,\mathrm{cm}^{-1/2}\mathrm{g}^{1/2}\mathrm{s}^{-2}
+\]
+</p>
+
+<p>
+The unit is ugly but it&rsquo;s simply equivalent to \(\mathrm{esu}\,\mathrm{s}^{-1}\,\mathrm{cm}^{-2}\) where esu is the unit for charge in cgs units.
+</p>
+
+<p>
+This current defines a number density for charge carriers, \(n\), if we assume all charge carriers move at (close to) speed of light: \(j_B = enc\). This is simply the microscopic model of current density. This number density of charge carriers gives us an estimate of the plasma frequency:
+</p>
+
+<p>
+\[
+\omega_p = \sqrt{\frac{4\pi n e^2}{m_e}} = \sqrt{\frac{4\pi e j_B}{m_ec}}, \quad \lambda_p = \frac{c}{\omega_p} \approx 9.2\times 10^{-8}\,\mathrm{cm}.
+\]
+</p>
+
+<p>
+This is where the mistake in the paper occurred.
+</p>
+
+<p>
+Fun fact: one can also write the above equation in terms of \(B\), since it is \(B\) that determines \(j_B\). One can obtain:
+</p>
+
+<p>
+\[
+\omega_p = \sqrt{\frac{eB}{m_ec}\frac{c}{r_g}} = \sqrt{\omega_B\frac{c}{r_g}},\quad \lambda_p = \sqrt{r_Lr_g}
+\]
+</p>
+
+<p>
+where \(\omega_B\) is the gyrofrequency assuming electrons are gyrating around the magnetic field at speed \(c\), and \(r_L\) is the corresponding Larmor radius. This basically says that the plasma skin depth \(\lambda_p\) is the geometric mean of the microscopic scale (gyroradius) and the macroscopic scale (\(r_g\)), which is pretty neat. This naturally means that \(r_L \ll \lambda_p \ll r_g\). Note that this \(\lambda_p\) is only an estimate, as the local real \(\lambda_p\) may very well deviate from the estimated value. This is just to get an idea of the typical length scales of plasma waves in this region.
+</p>
+
+<p>
+From here one can define \(E_0\) using \(\lambda_p\), by requiring that an electron will in field \(E_0\) will gain energy equal to \(m_ec^2\) over an acceleration distance of \(\lambda_p\). Note that this is an arbitrary choice, and there is nothing fundamental about \(E_0\), as opposed to \(\lambda_p\) or \(j_B\) which are physically meaningful quantities. \(j_B\) is the physical current density a local observer can theoretically measure, while \(\lambda_p\) is the plasma length scale that determines the wavelengths of various plasma waves. The reason for the existence of \(E_0\) is because in our numerical code, we chose \(\lambda_p\) to be the unit of length, instead of m or cm. As you may already know, choosing units of length, mass, and time will uniquely determine the unit of \(E\), \(B\) or other derived physical quantities. Hence we define the unit of \(E\) field as \(E_0\). The numerical value of \(E_0\) is:
+</p>
+
+<p>
+\[
+E_0 = \frac{m_ec^2}{e\lambda_p} \approx 1.8\times 10^{-5}\,\mathrm{statV/cm}
+\]
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgadc4c25" class="outline-2">
+<h2 id="orgadc4c25"><span class="section-number-2">2</span> Gap properties</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+Now we have the basic quantities, we compute the gap electric field using equation (15) of Chen+18. We checked this in our 2019 paper, and it seems robust. Assuming \(\kappa \sim 10\), \(\ell_\mathrm{IC}\sim 1.5\times 10^{-4}r_g\), \(\alpha\sim 1.2\), and \(\epsilon_\mathrm{min} \sim 2.3\times 10^{-9}\), we have:
+</p>
+
+<p>
+\[
+E_{\parallel}/E_0 = \left(\frac{5 \kappa \ell_\mathrm{IC}^2}{8 \pi \lambda_p r_g} \left(\frac{3 (\alpha -1)}{4 \alpha    }\frac{\ell_\mathrm{IC}}{\lambda_p}\epsilon_\mathrm{min}\right)^{-\alpha }\right)^{\frac{1}{\alpha +1}} \approx 2.04\times 10^3
+\]
+</p>
+
+<p>
+Using \(E_0\) and \(B\), we can get:
+</p>
+
+<p>
+\[
+E_{\parallel} \approx 2.04\times 10^3E_0 \approx 3.7\times 10^{-2}\,\mathrm{statV/cm}, \quad E_{\parallel}/B \approx 1.85\times 10^{-4}
+\]
+</p>
+
+<p>
+So indeed in Chen+18 we were off by about a factor of 5. This should give a gap power estimate of:
+</p>
+
+<p>
+\[
+L_\mathrm{gap} \sim E_{\parallel}j_Br_g^3 \approx 1.8\times 10^{40}\,\mathrm{erg/s},
+\]
+</p>
+
+<p>
+which is about a factor of 5 larger than our previous estimate. This should be the correct way of calculating this estimate.
+</p>
+</div>
+</div>
+</div>
+</body>
+</html>

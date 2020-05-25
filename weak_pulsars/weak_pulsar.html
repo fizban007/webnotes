@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- 2019-05-31 Fri 11:20 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Experiments on Weak Pulsars</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="Alex Chen">
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px #eee;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: visible;
+    padding-top: 1.2em;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    background-color: white;
+    top: -10px;
+    right: 10px;
+    padding: 3px;
+    border: 1px solid black;
+  }
+  pre.src:hover:before { display: inline;}
+  /* Languages per Org manual */
+  pre.src-asymptote:before { content: 'Asymptote'; }
+  pre.src-awk:before { content: 'Awk'; }
+  pre.src-C:before { content: 'C'; }
+  /* pre.src-C++ doesn't work in CSS */
+  pre.src-clojure:before { content: 'Clojure'; }
+  pre.src-css:before { content: 'CSS'; }
+  pre.src-D:before { content: 'D'; }
+  pre.src-ditaa:before { content: 'ditaa'; }
+  pre.src-dot:before { content: 'Graphviz'; }
+  pre.src-calc:before { content: 'Emacs Calc'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-fortran:before { content: 'Fortran'; }
+  pre.src-gnuplot:before { content: 'gnuplot'; }
+  pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-hledger:before { content: 'hledger'; }
+  pre.src-java:before { content: 'Java'; }
+  pre.src-js:before { content: 'Javascript'; }
+  pre.src-latex:before { content: 'LaTeX'; }
+  pre.src-ledger:before { content: 'Ledger'; }
+  pre.src-lisp:before { content: 'Lisp'; }
+  pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
+  pre.src-matlab:before { content: 'MATLAB'; }
+  pre.src-mscgen:before { content: 'Mscgen'; }
+  pre.src-ocaml:before { content: 'Objective Caml'; }
+  pre.src-octave:before { content: 'Octave'; }
+  pre.src-org:before { content: 'Org mode'; }
+  pre.src-oz:before { content: 'OZ'; }
+  pre.src-plantuml:before { content: 'Plantuml'; }
+  pre.src-processing:before { content: 'Processing.js'; }
+  pre.src-python:before { content: 'Python'; }
+  pre.src-R:before { content: 'R'; }
+  pre.src-ruby:before { content: 'Ruby'; }
+  pre.src-sass:before { content: 'Sass'; }
+  pre.src-scheme:before { content: 'Scheme'; }
+  pre.src-screen:before { content: 'Gnu Screen'; }
+  pre.src-sed:before { content: 'Sed'; }
+  pre.src-sh:before { content: 'shell'; }
+  pre.src-sql:before { content: 'SQL'; }
+  pre.src-sqlite:before { content: 'SQLite'; }
+  /* additional languages in org.el's org-babel-load-languages alist */
+  pre.src-forth:before { content: 'Forth'; }
+  pre.src-io:before { content: 'IO'; }
+  pre.src-J:before { content: 'J'; }
+  pre.src-makefile:before { content: 'Makefile'; }
+  pre.src-maxima:before { content: 'Maxima'; }
+  pre.src-perl:before { content: 'Perl'; }
+  pre.src-picolisp:before { content: 'Pico Lisp'; }
+  pre.src-scala:before { content: 'Scala'; }
+  pre.src-shell:before { content: 'Shell Script'; }
+  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+  /* additional language identifiers per "defun org-babel-execute"
+       in ob-*.el */
+  pre.src-cpp:before  { content: 'C++'; }
+  pre.src-abc:before  { content: 'ABC'; }
+  pre.src-coq:before  { content: 'Coq'; }
+  pre.src-groovy:before  { content: 'Groovy'; }
+  /* additional language identifiers from org-babel-shell-names in
+     ob-shell.el: ob-shell is the only babel language using a lambda to put
+     the execution function name together. */
+  pre.src-bash:before  { content: 'bash'; }
+  pre.src-csh:before  { content: 'csh'; }
+  pre.src-ash:before  { content: 'ash'; }
+  pre.src-dash:before  { content: 'dash'; }
+  pre.src-ksh:before  { content: 'ksh'; }
+  pre.src-mksh:before  { content: 'mksh'; }
+  pre.src-posh:before  { content: 'posh'; }
+  /* Additional Emacs modes also supported by the LaTeX listings package */
+  pre.src-ada:before { content: 'Ada'; }
+  pre.src-asm:before { content: 'Assembler'; }
+  pre.src-caml:before { content: 'Caml'; }
+  pre.src-delphi:before { content: 'Delphi'; }
+  pre.src-html:before { content: 'HTML'; }
+  pre.src-idl:before { content: 'IDL'; }
+  pre.src-mercury:before { content: 'Mercury'; }
+  pre.src-metapost:before { content: 'MetaPost'; }
+  pre.src-modula-2:before { content: 'Modula-2'; }
+  pre.src-pascal:before { content: 'Pascal'; }
+  pre.src-ps:before { content: 'PostScript'; }
+  pre.src-prolog:before { content: 'Prolog'; }
+  pre.src-simula:before { content: 'Simula'; }
+  pre.src-tcl:before { content: 'tcl'; }
+  pre.src-tex:before { content: 'TeX'; }
+  pre.src-plain-tex:before { content: 'Plain TeX'; }
+  pre.src-verilog:before { content: 'Verilog'; }
+  pre.src-vhdl:before { content: 'VHDL'; }
+  pre.src-xml:before { content: 'XML'; }
+  pre.src-nxml:before { content: 'XML'; }
+  /* add a generic configuration mode; LaTeX export needs an additional
+     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+  pre.src-conf:before { content: 'Configuration File'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .equation-container {
+    display: table;
+    text-align: center;
+    width: 100%;
+  }
+  .equation {
+    vertical-align: middle;
+  }
+  .equation-label {
+    display: table-cell;
+    text-align: right;
+    vertical-align: middle;
+  }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { width: 90%; }
+  /*]]>*/-->
+</style>
+<link rel="stylesheet" type="text/css" href="org.css" />
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2019 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
+</head>
+<body>
+<div id="content">
+<header>
+<h1 class="title">Experiments on Weak Pulsars</h1>
+</header>
+<div id="outline-container-org7afd82c" class="outline-2">
+<h2 id="org7afd82c"><span class="section-number-2">1</span> Rationale</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+I believe that the biggest difference between realistic pulsars and our
+simulations is the scale separation. The maximum acceleration potential
+for the pulsar polar cap can be computed as follows:
+</p>
+
+<p>
+\[ \gamma_\mathrm{max} \sim \frac{1}{4}\frac{R_{*}}{R_\mathrm{LC}}\left(
+\frac{R_{*}}{\lambda_p} \right)^2 \approx \mu_B\Omega^2 \]
+</p>
+
+<p>
+which can be as large as \(\sim 10^9\) for realistic parameters, while
+secondary pairs only have Lorentz factors of \(\gamma_s\sim 10^{2-3}\). In
+the simulation done in 2014, \(\gamma_\mathrm{max} \sim 250\) only, and
+secondaries have \(\gamma_s\sim 10\). Even if all primary particles tap
+the full polar cap potential and convert it into pairs, the multiplicity
+can only achieve \(\sim 25\) which might not be enough to support a
+force-free magnetosphere. Increasing this ratio might be the best way to
+approach realistic weak pulsars.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgf41df39" class="outline-2">
+<h2 id="orgf41df39"><span class="section-number-2">2</span> Comparison between different voltage ratios</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+The "Type-II" solution we got in 2014 had the following parameters:
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">Resolution</td>
+<td class="org-left">\(512\times 512\)</td>
+</tr>
+
+<tr>
+<td class="org-left">\(\mu\)</td>
+<td class="org-left">\(2.5\times 10^4\)</td>
+</tr>
+
+<tr>
+<td class="org-left">\(\gamma_\mathrm{thr}\)</td>
+<td class="org-left">\(\sim 20\)</td>
+</tr>
+
+<tr>
+<td class="org-left">\(R_\mathrm{LC}/R_*\)</td>
+<td class="org-left">\(10\)</td>
+</tr>
+
+<tr>
+<td class="org-left">\(R_\mathrm{cutoff}\)</td>
+<td class="org-left">\(\sim 4\)</td>
+</tr>
+
+<tr>
+<td class="org-left">\(\gamma_\mathrm{max}/\gamma_{thr}\)</td>
+<td class="org-left">\(10\)</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+Note that we use an almost instant pair creation scheme, where \(\ell_{ph}\) is
+only several timesteps. The energy of secondary pairs is just a fixed fraction
+of the threshold, therefore we use the ratios \(\gamma_\mathrm{max}/\gamma_s\) and
+\(\gamma_\mathrm{max}/\gamma_\mathrm{thr}\) interchangeably. The reality can be
+more complicated. Because the first generation of secondaries can emit
+synchrotron radiation that further cascades into generations of pairs,
+\(\gamma_\mathrm{max}/\gamma_s\) can be significantly larger than
+\(\gamma_\mathrm{max}/\gamma_\mathrm{thr}\).
+</p>
+
+<br>
+
+<p>
+I carried out a series of simulations that have increasingly higher voltage
+ratios. Here is a comparison video of the charge densities normalized to
+\(\rho_\mathrm{GJ}\) of the respective case:
+</p>
+
+<video controls="controls" width="850">
+<source src="./movies/weak_pulsar_comparison.mp4" type="video/mp4">
+</video>
+
+<p>
+Time in the video is measured in units of \(R_{*}/c\), and the video runs for \(2\)
+rotations in total. The four cases shown in the above video have the following
+common parameters:
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">Resolution</td>
+<td class="org-left">\(2048\times 2048\)</td>
+</tr>
+
+<tr>
+<td class="org-left">\(\gamma_\mathrm{thr}\)</td>
+<td class="org-left">\(25\)</td>
+</tr>
+
+<tr>
+<td class="org-left">\(R_\mathrm{LC}/R_{*}\)</td>
+<td class="org-left">\(8\)</td>
+</tr>
+
+<tr>
+<td class="org-left">\(R_\mathrm{cutoff}\)</td>
+<td class="org-left">\(3\)</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+Both GR effect and some effective synchrotron cooling are included. The
+compactness parameter \(r_g/R_{*}\) is taken to be \(0.5\), and synchrotron cooling
+damps the perpendicular momentum of any leptons in \(10\) timesteps at the pole of
+the star. The four cases differ by their \(B\) field strength at the equator
+(\(\mu_B\) to be more accurate), which corrspond to voltage ratios as follows:
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-right">
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">\(B_0/(m_ec^{2}/eR_{*})\)</td>
+<td class="org-right">\(\gamma_\mathrm{max}/\gamma_\mathrm{thr}\)</td>
+</tr>
+
+<tr>
+<td class="org-left">\(4\times 10^4\)</td>
+<td class="org-right">25</td>
+</tr>
+
+<tr>
+<td class="org-left">\(8\times 10^4\)</td>
+<td class="org-right">50</td>
+</tr>
+
+<tr>
+<td class="org-left">\(12\times 10^4\)</td>
+<td class="org-right">75</td>
+</tr>
+
+<tr>
+<td class="org-left">\(16\times 10^4\)</td>
+<td class="org-right">100</td>
+</tr>
+
+<tr>
+<td class="org-left">\(24\times 10^4\)</td>
+<td class="org-right">150</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+A clear trend can be seen from the video. When the voltage ratio is low, the
+pulsar can barely sustain pair creation, let alone forming a Y-point. The system
+settles down to some electrosphere-like solution, which was dubbed "Type-II" in
+our 2014 paper. With increased voltage ratio, a continuum of different types of
+solutions appear. At 4 times larger voltage ratio, the system becomes very
+close to a force-free state, with a sustained Y-point and current sheets. As can
+be seen later, the spin-down power is also very close to the force-free value
+\(L_0 = \mu^2\Omega^4\).
+</p>
+<br>
+
+<p>
+The intermediate states are interesting. A current sheet can barely form between
+the Y-point and the star, around the last closed field line. Pair creation is
+ignited episodically, launching a quasi-neutral stream of plasma towards the
+Y-point when it is active. The electrons in this quasi-neutral plasma stream
+later fall back towards the star to trigger the next episode of pair creation.
+</p>
+<br>
+
+<p>
+Below is a plot of total integrated Poynting flux at the star for the different
+cases:
+</p>
+
+
+<figure>
+<img src="figures/poynting_flux.png" alt="poynting_flux.png" style="width: 600">
+
+</figure>
+
+<p>
+The kind of oscillations from pair creation episodes are very evident in the
+light curves. There is one more case shown here which has \(B\) field and voltage
+ratio even higher than the ones listed above. The spin down power is closest to
+the force-free value for this case.
+</p>
+<br>
+
+<p>
+At this point, I believe this demonstrates that for realistic pulsars, even
+those that cannot support pair creation through \(\gamma\gamma\) collision at the
+light cylinder, should be well-described by the force-free solution.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orga5caaaf" class="outline-2">
+<h2 id="orga5caaaf"><span class="section-number-2">3</span> Robustness of the Results</h2>
+<div class="outline-text-2" id="text-3">
+<p>
+This section is for understanding the nuances of the results, and compare how
+different physical effects affect the simulation.
+</p>
+</div>
+
+<div id="outline-container-org57efb40" class="outline-3">
+<h3 id="org57efb40"><span class="section-number-3">3.1</span> Cooling vs. No Cooling</h3>
+<div class="outline-text-3" id="text-3-1">
+<p>
+Initially I was not putting in synchrotron cooling, and it was surprisingly easy
+to get a working pulsar. For example, at \(B_0 = 8\times 10^4\) I already have a
+quasi-steady magnetosphere. A movie that summarizes the difference at \(B_0 =
+8\times 10^4\) is shown here:
+</p>
+
+<video controls="controls" width="850">
+<source src="./movies/cooling_comparison.mp4" type="video/mp4">
+</video>
+
+<p>
+The case of no cooling shows a much more steady Y-point and return current
+sheet. It also has been run longer and it becomes even more steady afterwards. I
+think what is happening is that since particles can easily magnetic bottle in
+the return current region, the initial electron cloud near the Y-point will
+simply not deplete, but bounce back and forth between the star and the light
+cylinder. This makes it much easier to conduct the return current, therefore
+stabilizing the whole magnetospheric structure.
+</p>
+<br>
+
+<p>
+To get an idea of the effect of magnetic bottling, a simple experiment was done
+with some test particles. I put a layer of particles at \(r = 2R_{*}\) with
+momentum \(p_r = -10\), and let them fall towards the star, without evolving \(E\)
+or \(B\) fields. Without cooling, they do this:
+</p>
+
+<video controls="controls" width="550">
+<source src="./movies/bottling_nosync.mp4" type="video/mp4">
+</video>
+
+<p>
+Except for particles within a small angle from the axis, all particles simply
+bounce around the field lines, and never touch the surface. For typical cooling
+parameters I was using in the above simulations, they do this instead:
+</p>
+
+<video controls="controls" width="550">
+<source src="./movies/bottling_killperp0.1.mp4" type="video/mp4">
+</video>
+
+<p>
+The bottling effect is significantly reduced, and all particles quickly lose
+their perpendicular momentum and fall into the star.
+</p>
+<br>
+
+<p>
+The cooling I'm using in the simulations is simply damping out perpendicular
+momentum \(p_{\perp}\). In other words, at every timestep, I simply set
+\(p_{\perp}\) to be \((1 - \eta)p_{\perp}\) where \(\eta\) depends on local \(B\) field,
+and is \(0.1\) at the pole of the star. The drawback for this method is that it
+kills corotation too. But in reality I'm observing that this effect is
+negligible, and particles quickly start to corotate with the magnetosphere once
+they are extracted from the surface.
+</p>
+<br>
+
+<p>
+The alternative is to use the full Landau-Lifshitz synchrotron cooling formula.
+The good thing is that it respects \(E\times B\) drift, therefore preserves
+corotation, but there are also drawbacks to this method. Firstly it introduces
+numerical instabilities when \(B\) field is high and gyration is not fully
+resolved. It is fine when particles near the star have negligible pitch angles,
+but any particle with large pitch angle will soon see its momentum go to
+infinity in several timesteps. This is difficult to prevent and will
+unpredictably crash the simulation. Secondly, the formula is only valid when the
+Lorentz factor of the particles is much larger than 1. However, if one sets an
+artificial lower bound on \(\gamma\) below which we stop cooling, then it is even
+easier to create the scenario in the first case where a particle at large \(B\)
+field has significant pitch angle (with marginal Lorentz factor). Overall I find
+this approach to be unpredictable and prone to crash. When it works, the
+simulation results are very similar to simply killing \(p_{\perp}\), therefore I
+simply decided to use the previous scheme.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgf1a637d" class="outline-3">
+<h3 id="orgf1a637d"><span class="section-number-3">3.2</span> Different Pair Creation Radii</h3>
+<div class="outline-text-3" id="text-3-2">
+<p>
+TODO
+</p>
+</div>
+</div>
+
+<div id="outline-container-org930740f" class="outline-3">
+<h3 id="org930740f"><span class="section-number-3">3.3</span> The Effect of GR</h3>
+<div class="outline-text-3" id="text-3-3">
+<p>
+A run without GR is done with \(B_0 = 16\times 10^4\), and other parameters the
+same as previous runs. I also had to inject more particles from the surface so
+that injection alone can support GJ current. The results is the follows:
+</p>
+
+<video controls="controls" width="850">
+<source src="./movies/weak_pulsar_B16e4_no_gr.mp4" type="video/mp4">
+</video>
+
+<p>
+As one can see, the polar cap is almost completely quiet, while the rest of the
+magnetosphere is Forcefree-like. The only pair creation site is the return
+current sheet. There is some spurious pair creation near the equator in the
+closed field line zone, but it is dynamically unimportant (probably it is either
+due to cooling scheme, or a bug in injection). This makes sense, since GR effect
+is known to not change global current flow (Phillippov et. al. 2015), but only
+modify local \(\rho_\mathrm{GJ}\) at the polar cap. It will make the polar cap
+active, but otherwise not affect the structure of the magnetosphere.
+</p>
+<br>
+
+<p>
+A control experiment with the same injection parameters was done to compare with
+the above case. Here is a video of comparison:
+</p>
+
+<video controls="controls" width="850">
+<source src="./movies/gr_comparison.mp4" type="video/mp4">
+</video>
+
+<p>
+The top two plots show agin charge density, and lower two plots show pair
+creation rate. The two cases are almost indistinguishable in terms of global
+magnetic field structure or charge structure, but notably there is pair creation
+activity above the polar cap in the GR case. This is in agreement with Sasha's
+paper.
+</p>
+<br>
+
+<p>
+One interesting thing I noticed when doing the GR comparison is that the total
+Poynting flux near the star seems to be changed by the GR effect. If we define
+the spindown as the integrated Poynting flux at the stellar surface:
+</p>
+
+<p>
+\[ L = 2\pi\int_0^{\pi}(E_{\theta}B_{\phi} -
+E_{\phi}B_{\theta})R_{*}^2\sin\theta\,d\theta \]
+</p>
+
+<p>
+then we seem to get total Poynting flux at the light cylinder to be higher than
+at the stellar surface. This would apparently break energy conservation.
+However, if one multiply the stellar flux by a factor of 1.25, which is the
+factor change in \(\rho_\mathrm{GJ}\), then energy conservation seems restored.
+</p>
+
+
+<figure>
+<img src="figures/poynting_flux_GR.png" alt="poynting_flux_GR.png" style="width: 600">
+
+</figure>
+
+<p>
+This issue does not show up when there is no GR. The total Poynting flux at the
+star is always higher than at the LC after the initial transient. The total
+dissipation at the LC is approximately 10% only.
+</p>
+
+
+<figure>
+<img src="figures/poynting_flux_noGR.png" alt="poynting_flux_noGR.png" style="width: 600">
+
+</figure>
+</div>
+</div>
+
+
+<div id="outline-container-org519d4ee" class="outline-3">
+<h3 id="org519d4ee"><span class="section-number-3">3.4</span> Comparison with Another Code</h3>
+<div class="outline-text-3" id="text-3-4">
+<p>
+Once Fabio can carry out an independent run, we can compare the results and
+verify some of the conclusions above.
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org112b858" class="outline-2">
+<h2 id="org112b858"><span class="section-number-2">4</span> Detailed Movies for Individual Runs</h2>
+<div class="outline-text-2" id="text-4">
+</div>
+<div id="outline-container-orgb0626b7" class="outline-3">
+<h3 id="orgb0626b7"><span class="section-number-3">4.1</span> \(B = 4\times 10^{4}\) No Pair Creation</h3>
+<div class="outline-text-3" id="text-4-1">
+<video controls="controls" width="850">
+<source src="./movies/weak_pulsar_B4e4_electrosphere.mp4" type="video/mp4">
+</video>
+</div>
+</div>
+
+<div id="outline-container-orgb92453a" class="outline-3">
+<h3 id="orgb92453a"><span class="section-number-3">4.2</span> \(B = 4\times 10^{4}\)</h3>
+<div class="outline-text-3" id="text-4-2">
+<video controls="controls" width="850">
+<source src="./movies/weak_pulsar_B4e4.mp4" type="video/mp4">
+</video>
+</div>
+</div>
+
+<div id="outline-container-org29bb196" class="outline-3">
+<h3 id="org29bb196"><span class="section-number-3">4.3</span> \(B = 8\times 10^{4}\)</h3>
+<div class="outline-text-3" id="text-4-3">
+<video controls="controls" width="850">
+<source src="./movies/weak_pulsar_B8e4.mp4" type="video/mp4">
+</video>
+</div>
+</div>
+
+<div id="outline-container-org961b9cb" class="outline-3">
+<h3 id="org961b9cb"><span class="section-number-3">4.4</span> \(B = 8\times 10^{4}\) No Cooling</h3>
+<div class="outline-text-3" id="text-4-4">
+<video controls="controls" width="850">
+<source src="./movies/weak_pulsar_B8e4_nosync.mp4" type="video/mp4">
+</video>
+</div>
+</div>
+
+
+<div id="outline-container-orgc9ecaac" class="outline-3">
+<h3 id="orgc9ecaac"><span class="section-number-3">4.5</span> \(B = 12\times 10^{4}\)</h3>
+<div class="outline-text-3" id="text-4-5">
+<video controls="controls" width="850">
+<source src="./movies/weak_pulsar_B12e4.mp4" type="video/mp4">
+</video>
+</div>
+</div>
+
+<div id="outline-container-org211494b" class="outline-3">
+<h3 id="org211494b"><span class="section-number-3">4.6</span> \(B = 16\times 10^{4}\)</h3>
+<div class="outline-text-3" id="text-4-6">
+<video controls="controls" width="850">
+<source src="./movies/weak_pulsar_B16e4.mp4" type="video/mp4">
+</video>
+</div>
+</div>
+
+<div id="outline-container-org66418b9" class="outline-3">
+<h3 id="org66418b9"><span class="section-number-3">4.7</span> \(B = 24\times 10^{4}\)</h3>
+<div class="outline-text-3" id="text-4-7">
+<video controls="controls" width="850">
+<source src="./movies/weak_pulsar_B24e4.mp4" type="video/mp4">
+</video>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,150 @@
+#+TITLE: Field Solver in Spherical Coordinates
+#+LATEX_HEADER_EXTRA: \usepackage[left=0.75in, top=1.25in, right=0.75in, bottom=1.25in]{geometry}
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="org.min.css" />
+#+OPTIONS: html-postamble:nil
+#+OPTIONS: html5-fancy:t
+#+OPTIONS: toc:nil
+#+OPTIONS: num:2
+#+HTML_DOCTYPE: html5
+
+* Problem
+
+Recently, my magnetar simulations show a lot of oscillations of $\mathbf{E}$ and
+$\mathbf{B}$ fields near the star, even when little plasma is around. These
+oscillations grow in amplitude with time, and towards later stages of the
+simulation it becomes quite large. I then spent quite some time studying the
+effects of the field solver in spherical coordinates, trying to understand what
+is going on.
+
+My hypothesis is that, since my coordinate system is logarithmic in $r$, small
+wavelength electromagnetic waves will not be resolve at large distances from the
+inner boundary, hence they will be reflected. If a lot of these waves keep
+reflecting between the star and some larger radius, then they will build up
+small scale noise over time.
+
+To solve this problem, I developed a new field solver. It is not completely new,
+as the same idea was employed in my PhD thesis, in an old version of the code.
+However, since the code went through major revisions multiple times, the current
+field solver looks very different. In the following section, I first describe
+the algorithms of the current (explicit) solver, and the new (semi-implicit)
+solver. Then, I show comparisons of these two solvers using a very simple
+physical setup.
+
+* Algorithms
+
+** Standard (Explicit Leap-frog) solver
+
+The goal is to solve Maxwell equations in spherical coordinates with logarithmic
+$r$. Let's call $x = \log(r)$. It is beneficial to work with the integral form
+of the Maxwell equations:
+
+\begin{align}
+\frac{d}{dt}\int_S \mathbf{E}\cdot d\mathbf{A} &= \oint_{\partial S} (\nabla\times \mathbf{B})\cdot d\mathbf{l} - \int \mathbf{j}\cdot d\mathbf{A} \\
+\frac{d}{dt}\int_S \mathbf{B}\cdot d\mathbf{A} &= -\oint_{\partial S} (\nabla\times \mathbf{E})\cdot d\mathbf{l}
+\end{align}
+
+The discrete version of this set of equations using standard leap-frog time staggering becomes:
+
+\begin{align}
+\frac{\mathbf{E}^{n+1} - \mathbf{E}^n}{\Delta t}\cdot d\mathbf{A}_e &= \sum \mathbf{B}^{n + 1/2}\cdot d\mathbf{l}_b - \mathbf{j}^{n+1/2}\cdot d\mathbf{A}_e \\
+\frac{\mathbf{B}^{n+1/2} - \mathbf{B}^{n-1/2}}{\Delta t}\cdot d\mathbf{A}_b &= -\sum \mathbf{E}^n\cdot d\mathbf{l}_e
+\end{align}
+
+where $d\mathbf{l}_e$ and $d\mathbf{l}_b$ are line elements corresponding to
+$\mathbf{E}$ and $\mathbf{B}$ fields, while $d\mathbf{A}_e$ and $d\mathbf{A}_b$
+are surface elements respectively. These elements are evaluated at standard
+staggered Yee-mesh locations.
+
+This version of the solver has the benefit of being second order accurate in
+time, which is the usual benefit of leap-frog solvers. It is also
+energy-conserving, since the algorithm is completely symmetric under
+time-reversal. However, energy conserving may not be the most ideal quality for
+a field solver in log-spherical coordinates, since unresolved waves at large
+distances have nowhere to go. It is much more desirable to damp those waves.
+
+** Semi-implicit solver
+
+The semi-implicit discretization looks like this:
+
+\begin{align}
+\frac{\mathbf{E}^{n+1} - \mathbf{E}^n}{\Delta t}\cdot d\mathbf{A}_e &= \sum \left(\alpha\mathbf{B}^n + \beta \mathbf{B}^{n+1}\right)\cdot d\mathbf{l}_b - \mathbf{j}^{n+1/2}\cdot d\mathbf{A}_e \\
+\frac{\mathbf{B}^{n+1} - \mathbf{B}^{n}}{\Delta t}\cdot d\mathbf{A}_b &= -\sum \left(\alpha \mathbf{E}^{n} + \beta\mathbf{E}^{n+1}\right)\cdot d\mathbf{l}_e
+\end{align}
+
+where $\alpha + \beta = 1$ and their ratio can be a tunable parameter
+determining the "implicitness" of the scheme. When $\alpha = \beta = 1/2$, the
+scheme is also symmetric under time-reversal and is second order accurate in
+time. However, when $\beta > 0.5$, it adds numerical damping to grid-scale
+perturbations, which is exactly what we need.
+
+To solve the semi-implicit system, one can substitute the first equation into the second, and obtain:
+
+\begin{equation}
+\frac{\mathbf{B}^{n+1} - \mathbf{B}^{n}}{\Delta t}\cdot d\mathbf{A}_b = -\sum_e \left(\alpha \mathbf{E}^{n} + \beta \left[ \mathbf{E}^n + \frac{\Delta t}{dA_e} \left( \sum_b \left(\alpha\mathbf{B}^n + \beta \mathbf{B}^{n+1}\right)\cdot d\mathbf{l}_b - \mathbf{j}^{n+1/2} \right) \right]\right)\cdot d\mathbf{l}_e
+\end{equation}
+
+Moving all $\mathbf{B}^{n+1}$ terms to the left hand side, one can obtain an implicit equation for $\mathbf{B}^{n+1}$:
+
+\begin{equation}
+\left( 1 + \beta^2\Delta t^2 \mathcal{D} \right)\mathbf{B}^{n+1} = (1 - \alpha\beta \Delta t^2 \mathcal{D})\mathbf{B}^n - \frac{\Delta t}{dA_b}\sum_e\mathbf{E}^n\cdot d\mathbf{l}_e + \frac{\beta \Delta t^2}{dA_b}\sum_e\mathbf{j}^{n+1/2}\cdot d\mathbf{l}_e
+\end{equation}
+
+where we define the operator $\mathcal{D}$ for double circulation:
+
+\begin{equation}
+\mathcal{D}\mathbf{B} = \frac{1}{dA_b}\sum_e \frac{dl_e}{dA_e}\sum_b d\mathbf{l}_b\cdot \mathbf{B}
+\end{equation}
+
+The operator $(1 + \beta^2\Delta t^2\mathcal{D})$ on the left hand side of the implicit equation can be inverted using the formal expansion:
+
+\begin{equation}
+(1 + \beta^2\Delta t^2\mathcal{D})^{-1} = 1 - (\beta^2\Delta t^2\mathcal{D}) - (\beta^2\Delta t^2\mathcal{D})^2 - (\beta^2\Delta t^2\mathcal{D})^{3} - \dots
+\end{equation}
+
+Since each power is proportional to $\Delta t^2$, this series converges rapidly. I find truncating it at around the 6th term gives a very accurate result. In practice, this solver is about $4\sim 5$ times slower than the leap-frog solver. Since in PIC the timestep is dominated by particle push and deposit anyway, this is not a significant increase at all.
+
+* Comparison of Results
+
+I set up a very simple simulation to test these two solvers. I start with a monopolar $\mathbf{B}$ field in vacuum, where $B_r = B_p/r^2$. Then I apply a time-varying angular velocity on the stellar surface: $\Omega(t) = \Omega_0\sin(2\pi k t)$. This angular velocity is set by applying a boundary condition $E_{\theta} = -\Omega r \sin\theta B_r$ along the stellar boundary. The boundary condition is only applied between $0 < t < 3R_{*}/c$, so that after a short time there is no longer energy injection. Outer boundary is a damping layer. Ideally one should see some waves launched near the star, propagating to the outer boundary, and flow out peacefully.
+
+** $k = 0.5$
+#+ATTR_HTML: :controls controls :width 100%;
+#+BEGIN_video
+#+HTML: <source src="./spherical_wave/spherical_wave_k0.5.mp4" type="video/mp4">
+#+END_video
+
+This is a case of relatively large wavelength. The two solvers behave almost identically. There is some small wavelength noises following the main wave, but nothing severe. The wave peacefully flows through the outer boundary without much reflection.
+
+** $k = 3.0$
+#+ATTR_HTML: :controls controls :width 100%;
+#+BEGIN_video
+#+HTML: <source src="./spherical_wave/spherical_wave_k3.0.mp4" type="video/mp4">
+#+END_video
+
+The wavelength has decreased by a factor of 6, and it makes a huge difference.
+The explicit solver conserves energy by allowing the small wavelength waves to
+reflect, creating a significant amount of trapped waves that cannot leave the
+box. The implicitness parameter $\beta = 0.6$ in this simulation, and it is
+enough to damp out undesired waves. Due to the position where the waves reflect,
+it looks like the culprit could be simply a badly implemented damping layer. One
+could see that this is not the case by increasing $k$ even more, so that the
+waves reflect even earlier.
+
+** $k = 10.0$
+#+ATTR_HTML: :controls controls :width 100%;
+#+BEGIN_video
+#+HTML: <source src="./spherical_wave/spherical_wave_k10.0.mp4" type="video/mp4">
+#+END_video
+
+In this case one can clearly see that most of the trapped waves in the explicit
+solver are trapped between $1 < r < 15$. A small fraction of the waves are able
+to be transmitted to a larger radii and escape the box, but a significant
+fraction remains and keeps bouncing. There is some reflection in the implicit
+solver too but those waves are quickly damped away.
+
+One could argue that in the implicit solver, energy is not conserved. This is
+indeed true. However, this is a situation where you need to pick your poison:
+whether to allow undamped small scale fluctuations to develop unhindered, or to
+damp them out but sacrificing energy conservation. The answer probably depends
+on the application, but if the leap-frog solver is known to cause problems in
+long-term simulations then I think the semi-implicit solver should be used.

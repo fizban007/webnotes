@@ -1,0 +1,136 @@
+#+TITLE: Magnetar Resonant Scattering
+#+LATEX_HEADER_EXTRA: \usepackage[left=0.75in, top=1.25in, right=0.75in, bottom=1.25in]{geometry}
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="org.min.css" />
+#+OPTIONS: html-postamble:nil
+#+OPTIONS: html5-fancy:t
+#+OPTIONS: toc:nil
+#+OPTIONS: num:2
+#+HTML_DOCTYPE: html5
+
+* Resonant drag force
+
+The resonant drag force is a complicated function that depends on the particle
+position and Lorentz factor, stellar temperature, and local B field. It is not
+necessarily intuitive how it behaves under different circumstances. This
+document is trying to build some intuition on how it works, and what is the
+implication in various cases.
+
+Just to recap, the radiation drag force that we are considering is from
+Beloborodov (2013):
+
+$$
+\mathcal{F}(\beta) = \frac{dp}{dt} = \frac{\alpha^2}{4
+\tilde{r}^2}\frac{m_ec^2}{r_e}\Theta^3g(y)\gamma(\beta_{*} - \beta)
+$$
+
+where $\Theta = kT_{*}/m_ec^2$ is the stellar temperature, $g(y) = y^3/(e^y -
+1)$, and $y = b/[\gamma(1 - \beta\mu)\Theta]$. $\mu$ is basically the local
+angle between $B$ field and the radial direction (from which all thermal photons
+are coming from). $\beta$ is the local parallel velocity in units of $c$. We can
+cast this into dimensionless form as:
+
+$$
+\tilde{\mathcal{F}}(\beta) = \frac{d\tilde{p}}{d\tilde{t}} = \frac{\alpha^2}{4
+\tilde{r}^2}\frac{m_ec^2}{r_e}\Theta^3g(y)\gamma(\beta_{*} -
+\beta)\frac{R_{*}}{m_ec^2} \sim 4.44\times 10^{13} \frac{1}{\tilde{r}^2}\Theta^3g(y)\gamma(\beta_{*} -
+\beta)
+$$
+
+If we assume $\Theta \sim 10^{-3}$ then $\tilde{\mathcal{F}} \sim 4.7\times
+10^{4}$ when other factors are of order unity, which is close to the estimate in
+Beloborodov 2013.
+
+* Resonant drag force vs radius
+
+I want to get an intuitive idea of how this force behaves at different locations
+in the magnetosphere. To this end, I wrote a python script to compute the
+radiation drag force on a given particle with constant Lorentz factor moving
+*outwards* from the stellar surface to $R_\mathrm{max}$ on a specific field
+line. Everything is in realistic parameters, namely $\Theta = 10^{-3}$, $F_0 =
+4.7\times 10^{13}$, $b = 10$ at the equator, and $R_\mathrm{max} = 15R_{*}$ so
+that we are in the radiative zone. The result is in the following plot:
+
+#+CAPTION: The resonant drag force on a single outgoing particle at various Lorentz factors
+#+ATTR_LATEX: :width 0.6\textwidth
+[[./drag_outgoing.png]]
+
+There is an additional curve which is at $\gamma = \gamma_\mathrm{thr}$, where
+the threshold is defined to be $\gamma_\mathrm{thr} = 100b$. What is curious is
+that if the particle moves out constantly at $\gamma_\mathrm{thr}$ it actually
+doesn't feel any radiation drag at all. This is very surprising. My
+understanding is that the threshold represents a "lower bound" on the Lorentz
+factor at which pairs start to be produced. When $\gamma$ goes above the
+threshold, the drag rapidly becomes significant and manifests as discrete
+scatterings that reduces the particle energy in chunks, way before the peak of
+the thermal spectrum (and peak of the drag force).
+
+Now consider the particle moving *backwards* from the apex of the dipole field
+line to the star. The only difference here is that when computing $\beta$ under
+a given $\gamma$ I added a negative sign in the force equation.
+
+#+CAPTION: The resonant drag force on a single in-going particle at various Lorentz factors
+#+ATTR_LATEX: :width 0.6\textwidth
+[[./drag_incoming.png]]
+
+There are several features. First, at any given radius and given Lorentz factor,
+the drag force is about an order of magnitude higher than the outgoing case.
+This is not surprising because the particles interact with a different portion
+of the Wien tail, effectively increasing a lot the number of background photons
+that the backflowing particles can scatter with. Secondly, the drag is very
+efficient. Taking an "integral" of this force over radius (ignoring field line
+geometry), the particle would be stopped way before it reaches the peak of
+resonant drag. Also, near $\gamma_\mathrm{thr}$ the force is rather huge near
+the star. The voltage drop between $R_{*}$ and $2R_{*}$ is much higher than
+$m_i/m_e$. If this kind of voltage is around then there should be no problem
+extracting ions.
+
+Now suppose the system needs to sustain a backflow of electrons from the
+equatorial cloud to the stellar surface in the upper hemisphere. I find it hard
+to believe that the system prefers to accelerate the electrons to higher and
+higher energies closer to the star, rather than to overcome a relatively small
+potential barrier near the equator, then let the electrons almost free-stream
+towards the star at relatively low energies. It also seems that the backflowing
+particles interact with a different side of the peak radiation force, therefore
+the qualitative behavior of backflowing plasma can be very different from the
+outgoing plasma.
+
+Also to put these numbers on the y-axis into context. In these dimensionless
+units, 1 corresponds to about $10^{-5}$ statV/cm. So if the parallel electric
+field can be as strong as the poloidal $B$ field, then it should have no problem
+accelerating particles even to overcome the highest radiation drag. I doubt that
+would be the case, as even in vacuum the parallel $E$ field won't grow to $B$
+levels, and we are mostly talking about small deviations of FFE and long-term
+Ohmic evolution.
+
+* Resonant scattering rates
+
+The number of photons scattered per unit time is given by
+
+$$
+\dot{N}_\mathrm{sc} = \frac{2\pi^2 r_ec^2}{\gamma}\int d\Omega \int d\omega\
+n_{\omega}\delta(\omega - \omega_\mathrm{res})
+$$
+
+where $\omega_\mathrm{res} = \gamma(1 - \boldsymbol{\beta}\cdot
+\boldsymbol{\Omega})\omega_B$. Assuming thermal soft X-ray background, the soft
+photon density can be written as a Plankian:
+
+$$ \omega n_{\omega} \approx 0.42 \frac{y^3}{e^y - 1} n_0 f(\Omega),\qquad y =
+\frac{\hbar\omega}{kT} $$
+
+The dimensionless scattering rate can be written as
+
+$$
+\tilde{\dot{N}}_\mathrm{sc} = \frac{\alpha m_ec^2}{4\hbar}\frac{R_{*}}{c}
+\Theta^2 \frac{g(y)}{y}\frac{1}{\tilde{r}^2}\frac{1}{\gamma} \approx
+4.7\times 10^{13}\Theta^2 \frac{g(y)}{y}\frac{1}{\tilde{r}^2}\frac{1}{\gamma}
+$$
+
+
+* Parameters in the simulation
+
+I want to write a mirroring section that do the same thing for simulation
+parameters. However I want to make sure the above is correct before proceeding.
+The above analysis also qualitatively explains what is happening in the
+simulations so I would expect similar results to hold for simulation parameter
+choices (I was really careful choosing those).

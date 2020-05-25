@@ -1,0 +1,69 @@
+#+TITLE: Computing gap quantities
+#+LATEX_HEADER_EXTRA: \usepackage[left=0.75in, top=1.25in, right=0.75in, bottom=1.25in]{geometry}
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="org.min.css" />
+#+OPTIONS: html-postamble:nil
+#+OPTIONS: html5-fancy:t
+#+OPTIONS: toc:nil
+#+OPTIONS: num:2
+#+HTML_DOCTYPE: html5
+
+* Basic quantities
+
+The logic of estimating the plasma quantities near the black hole is as follows. First we start with a $B$ field estimate from the jet power, with $B\sim 200\,\mathrm{G}$. This is probably different from the GRMHD models since we assumed a larger $L_\mathrm{jet}$. We estimate the background $j_B$ using Maxwell equations assuming steady state:
+
+$$
+\frac{1}{c}\frac{\partial E}{\partial t} = \nabla\times B - \frac{4\pi}{c}j \quad \Longrightarrow \quad
+j = \frac{c}{4\pi} \nabla\times B
+$$
+
+We assume the spatial curvature of magnetic field lines would be comparable to $r_g$ near the black hole, therefore $\nabla\times B \sim B/r_g$, hence we estimate $j_B$ as:
+
+$$
+j_B \sim \frac{c}{4\pi} \frac{B}{r_g} \approx 4.8\times 10^{-4}\,\mathrm{cm}^{-1/2}\mathrm{g}^{1/2}\mathrm{s}^{-2}
+$$
+
+The unit is ugly but it's simply equivalent to $\mathrm{esu}\,\mathrm{s}^{-1}\,\mathrm{cm}^{-2}$ where esu is the unit for charge in cgs units.
+
+This current defines a number density for charge carriers, $n$, if we assume all charge carriers move at (close to) speed of light: $j_B = enc$. This is simply the microscopic model of current density. This number density of charge carriers gives us an estimate of the plasma frequency:
+
+$$
+\omega_p = \sqrt{\frac{4\pi n e^2}{m_e}} = \sqrt{\frac{4\pi e j_B}{m_ec}}, \quad \lambda_p = \frac{c}{\omega_p} \approx 9.2\times 10^{-8}\,\mathrm{cm}.
+$$
+
+This is where the mistake in the paper occurred.
+
+Fun fact: one can also write the above equation in terms of $B$, since it is $B$ that determines $j_B$. One can obtain:
+
+$$
+\omega_p = \sqrt{\frac{eB}{m_ec}\frac{c}{r_g}} = \sqrt{\omega_B\frac{c}{r_g}},\quad \lambda_p = \sqrt{r_Lr_g}
+$$
+
+where $\omega_B$ is the gyrofrequency assuming electrons are gyrating around the magnetic field at speed $c$, and $r_L$ is the corresponding Larmor radius. This basically says that the plasma skin depth $\lambda_p$ is the geometric mean of the microscopic scale (gyroradius) and the macroscopic scale ($r_g$), which is pretty neat. This naturally means that $r_L \ll \lambda_p \ll r_g$. Note that this $\lambda_p$ is only an estimate, as the local real $\lambda_p$ may very well deviate from the estimated value. This is just to get an idea of the typical length scales of plasma waves in this region.
+
+From here one can define $E_0$ using $\lambda_p$, by requiring that an electron will in field $E_0$ will gain energy equal to $m_ec^2$ over an acceleration distance of $\lambda_p$. Note that this is an arbitrary choice, and there is nothing fundamental about $E_0$, as opposed to $\lambda_p$ or $j_B$ which are physically meaningful quantities. $j_B$ is the physical current density a local observer can theoretically measure, while $\lambda_p$ is the plasma length scale that determines the wavelengths of various plasma waves. The reason for the existence of $E_0$ is because in our numerical code, we chose $\lambda_p$ to be the unit of length, instead of m or cm. As you may already know, choosing units of length, mass, and time will uniquely determine the unit of $E$, $B$ or other derived physical quantities. Hence we define the unit of $E$ field as $E_0$. The numerical value of $E_0$ is:
+
+$$
+E_0 = \frac{m_ec^2}{e\lambda_p} \approx 1.8\times 10^{-5}\,\mathrm{statV/cm}
+$$
+
+* Gap properties
+
+Now we have the basic quantities, we compute the gap electric field using equation (15) of Chen+18. We checked this in our 2019 paper, and it seems robust. Assuming $\kappa \sim 10$, $\ell_\mathrm{IC}\sim 1.5\times 10^{-4}r_g$, $\alpha\sim 1.2$, and $\epsilon_\mathrm{min} \sim 2.3\times 10^{-9}$, we have:
+
+$$
+E_{\parallel}/E_0 = \left(\frac{5 \kappa \ell_\mathrm{IC}^2}{8 \pi \lambda_p r_g} \left(\frac{3 (\alpha -1)}{4 \alpha    }\frac{\ell_\mathrm{IC}}{\lambda_p}\epsilon_\mathrm{min}\right)^{-\alpha }\right)^{\frac{1}{\alpha +1}} \approx 2.04\times 10^3
+$$
+
+Using $E_0$ and $B$, we can get:
+
+$$
+E_{\parallel} \approx 2.04\times 10^3E_0 \approx 3.7\times 10^{-2}\,\mathrm{statV/cm}, \quad E_{\parallel}/B \approx 1.85\times 10^{-4}
+$$
+
+So indeed in Chen+18 we were off by about a factor of 5. This should give a gap power estimate of:
+
+$$
+L_\mathrm{gap} \sim E_{\parallel}j_Br_g^3 \approx 1.8\times 10^{40}\,\mathrm{erg/s},
+$$
+
+which is about a factor of 5 larger than our previous estimate. This should be the correct way of calculating this estimate.

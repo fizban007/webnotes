@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- 2020-04-27 Mon 17:31 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Field Solver in Spherical Coordinates</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="Alex Chen">
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px #eee;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: visible;
+    padding-top: 1.2em;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    background-color: white;
+    top: -10px;
+    right: 10px;
+    padding: 3px;
+    border: 1px solid black;
+  }
+  pre.src:hover:before { display: inline;}
+  /* Languages per Org manual */
+  pre.src-asymptote:before { content: 'Asymptote'; }
+  pre.src-awk:before { content: 'Awk'; }
+  pre.src-C:before { content: 'C'; }
+  /* pre.src-C++ doesn't work in CSS */
+  pre.src-clojure:before { content: 'Clojure'; }
+  pre.src-css:before { content: 'CSS'; }
+  pre.src-D:before { content: 'D'; }
+  pre.src-ditaa:before { content: 'ditaa'; }
+  pre.src-dot:before { content: 'Graphviz'; }
+  pre.src-calc:before { content: 'Emacs Calc'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-fortran:before { content: 'Fortran'; }
+  pre.src-gnuplot:before { content: 'gnuplot'; }
+  pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-hledger:before { content: 'hledger'; }
+  pre.src-java:before { content: 'Java'; }
+  pre.src-js:before { content: 'Javascript'; }
+  pre.src-latex:before { content: 'LaTeX'; }
+  pre.src-ledger:before { content: 'Ledger'; }
+  pre.src-lisp:before { content: 'Lisp'; }
+  pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
+  pre.src-matlab:before { content: 'MATLAB'; }
+  pre.src-mscgen:before { content: 'Mscgen'; }
+  pre.src-ocaml:before { content: 'Objective Caml'; }
+  pre.src-octave:before { content: 'Octave'; }
+  pre.src-org:before { content: 'Org mode'; }
+  pre.src-oz:before { content: 'OZ'; }
+  pre.src-plantuml:before { content: 'Plantuml'; }
+  pre.src-processing:before { content: 'Processing.js'; }
+  pre.src-python:before { content: 'Python'; }
+  pre.src-R:before { content: 'R'; }
+  pre.src-ruby:before { content: 'Ruby'; }
+  pre.src-sass:before { content: 'Sass'; }
+  pre.src-scheme:before { content: 'Scheme'; }
+  pre.src-screen:before { content: 'Gnu Screen'; }
+  pre.src-sed:before { content: 'Sed'; }
+  pre.src-sh:before { content: 'shell'; }
+  pre.src-sql:before { content: 'SQL'; }
+  pre.src-sqlite:before { content: 'SQLite'; }
+  /* additional languages in org.el's org-babel-load-languages alist */
+  pre.src-forth:before { content: 'Forth'; }
+  pre.src-io:before { content: 'IO'; }
+  pre.src-J:before { content: 'J'; }
+  pre.src-makefile:before { content: 'Makefile'; }
+  pre.src-maxima:before { content: 'Maxima'; }
+  pre.src-perl:before { content: 'Perl'; }
+  pre.src-picolisp:before { content: 'Pico Lisp'; }
+  pre.src-scala:before { content: 'Scala'; }
+  pre.src-shell:before { content: 'Shell Script'; }
+  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+  /* additional language identifiers per "defun org-babel-execute"
+       in ob-*.el */
+  pre.src-cpp:before  { content: 'C++'; }
+  pre.src-abc:before  { content: 'ABC'; }
+  pre.src-coq:before  { content: 'Coq'; }
+  pre.src-groovy:before  { content: 'Groovy'; }
+  /* additional language identifiers from org-babel-shell-names in
+     ob-shell.el: ob-shell is the only babel language using a lambda to put
+     the execution function name together. */
+  pre.src-bash:before  { content: 'bash'; }
+  pre.src-csh:before  { content: 'csh'; }
+  pre.src-ash:before  { content: 'ash'; }
+  pre.src-dash:before  { content: 'dash'; }
+  pre.src-ksh:before  { content: 'ksh'; }
+  pre.src-mksh:before  { content: 'mksh'; }
+  pre.src-posh:before  { content: 'posh'; }
+  /* Additional Emacs modes also supported by the LaTeX listings package */
+  pre.src-ada:before { content: 'Ada'; }
+  pre.src-asm:before { content: 'Assembler'; }
+  pre.src-caml:before { content: 'Caml'; }
+  pre.src-delphi:before { content: 'Delphi'; }
+  pre.src-html:before { content: 'HTML'; }
+  pre.src-idl:before { content: 'IDL'; }
+  pre.src-mercury:before { content: 'Mercury'; }
+  pre.src-metapost:before { content: 'MetaPost'; }
+  pre.src-modula-2:before { content: 'Modula-2'; }
+  pre.src-pascal:before { content: 'Pascal'; }
+  pre.src-ps:before { content: 'PostScript'; }
+  pre.src-prolog:before { content: 'Prolog'; }
+  pre.src-simula:before { content: 'Simula'; }
+  pre.src-tcl:before { content: 'tcl'; }
+  pre.src-tex:before { content: 'TeX'; }
+  pre.src-plain-tex:before { content: 'Plain TeX'; }
+  pre.src-verilog:before { content: 'Verilog'; }
+  pre.src-vhdl:before { content: 'VHDL'; }
+  pre.src-xml:before { content: 'XML'; }
+  pre.src-nxml:before { content: 'XML'; }
+  /* add a generic configuration mode; LaTeX export needs an additional
+     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+  pre.src-conf:before { content: 'Configuration File'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .equation-container {
+    display: table;
+    text-align: center;
+    width: 100%;
+  }
+  .equation {
+    vertical-align: middle;
+  }
+  .equation-label {
+    display: table-cell;
+    text-align: right;
+    vertical-align: middle;
+  }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { width: 90%; }
+  /*]]>*/-->
+</style>
+<link rel="stylesheet" type="text/css" href="org.min.css" />
+<script type="text/javascript">
+// @license magnet:?xt=urn:btih:1f739d935676111cfff4b4693e3816e664797050&amp;dn=gpl-3.0.txt GPL-v3-or-Later
+<!--/*--><![CDATA[/*><!--*/
+     function CodeHighlightOn(elem, id)
+     {
+       var target = document.getElementById(id);
+       if(null != target) {
+         elem.cacheClassElem = elem.className;
+         elem.cacheClassTarget = target.className;
+         target.className = "code-highlighted";
+         elem.className   = "code-highlighted";
+       }
+     }
+     function CodeHighlightOff(elem, id)
+     {
+       var target = document.getElementById(id);
+       if(elem.cacheClassElem)
+         elem.className = elem.cacheClassElem;
+       if(elem.cacheClassTarget)
+         target.className = elem.cacheClassTarget;
+     }
+    /*]]>*///-->
+// @license-end
+</script>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
+</head>
+<body>
+<div id="content">
+<header>
+<h1 class="title">Field Solver in Spherical Coordinates</h1>
+</header>
+<div id="outline-container-orge5aeab8" class="outline-2">
+<h2 id="orge5aeab8"><span class="section-number-2">1</span> Problem</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+Recently, my magnetar simulations show a lot of oscillations of \(\mathbf{E}\) and
+\(\mathbf{B}\) fields near the star, even when little plasma is around. These
+oscillations grow in amplitude with time, and towards later stages of the
+simulation it becomes quite large. I then spent quite some time studying the
+effects of the field solver in spherical coordinates, trying to understand what
+is going on.
+</p>
+
+<p>
+My hypothesis is that, since my coordinate system is logarithmic in \(r\), small
+wavelength electromagnetic waves will not be resolve at large distances from the
+inner boundary, hence they will be reflected. If a lot of these waves keep
+reflecting between the star and some larger radius, then they will build up
+small scale noise over time.
+</p>
+
+<p>
+To solve this problem, I developed a new field solver. It is not completely new,
+as the same idea was employed in my PhD thesis, in an old version of the code.
+However, since the code went through major revisions multiple times, the current
+field solver looks very different. In the following section, I first describe
+the algorithms of the current (explicit) solver, and the new (semi-implicit)
+solver. Then, I show comparisons of these two solvers using a very simple
+physical setup.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org84e8490" class="outline-2">
+<h2 id="org84e8490"><span class="section-number-2">2</span> Algorithms</h2>
+<div class="outline-text-2" id="text-2">
+</div>
+<div id="outline-container-org21822d2" class="outline-3">
+<h3 id="org21822d2"><span class="section-number-3">2.1</span> Standard (Explicit Leap-frog) solver</h3>
+<div class="outline-text-3" id="text-2-1">
+<p>
+The goal is to solve Maxwell equations in spherical coordinates with logarithmic
+\(r\). Let&rsquo;s call \(x = \log(r)\). It is beneficial to work with the integral form
+of the Maxwell equations:
+</p>
+
+\begin{align}
+\frac{d}{dt}\int_S \mathbf{E}\cdot d\mathbf{A} &= \oint_{\partial S} (\nabla\times \mathbf{B})\cdot d\mathbf{l} - \int \mathbf{j}\cdot d\mathbf{A} \\
+\frac{d}{dt}\int_S \mathbf{B}\cdot d\mathbf{A} &= -\oint_{\partial S} (\nabla\times \mathbf{E})\cdot d\mathbf{l}
+\end{align}
+
+<p>
+The discrete version of this set of equations using standard leap-frog time staggering becomes:
+</p>
+
+\begin{align}
+\frac{\mathbf{E}^{n+1} - \mathbf{E}^n}{\Delta t}\cdot d\mathbf{A}_e &= \sum \mathbf{B}^{n + 1/2}\cdot d\mathbf{l}_b - \mathbf{j}^{n+1/2}\cdot d\mathbf{A}_e \\
+\frac{\mathbf{B}^{n+1/2} - \mathbf{B}^{n-1/2}}{\Delta t}\cdot d\mathbf{A}_b &= -\sum \mathbf{E}^n\cdot d\mathbf{l}_e
+\end{align}
+
+<p>
+where \(d\mathbf{l}_e\) and \(d\mathbf{l}_b\) are line elements corresponding to
+\(\mathbf{E}\) and \(\mathbf{B}\) fields, while \(d\mathbf{A}_e\) and \(d\mathbf{A}_b\)
+are surface elements respectively. These elements are evaluated at standard
+staggered Yee-mesh locations.
+</p>
+
+<p>
+This version of the solver has the benefit of being second order accurate in
+time, which is the usual benefit of leap-frog solvers. It is also
+energy-conserving, since the algorithm is completely symmetric under
+time-reversal. However, energy conserving may not be the most ideal quality for
+a field solver in log-spherical coordinates, since unresolved waves at large
+distances have nowhere to go. It is much more desirable to damp those waves.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org4b5f167" class="outline-3">
+<h3 id="org4b5f167"><span class="section-number-3">2.2</span> Semi-implicit solver</h3>
+<div class="outline-text-3" id="text-2-2">
+<p>
+The semi-implicit discretization looks like this:
+</p>
+
+\begin{align}
+\frac{\mathbf{E}^{n+1} - \mathbf{E}^n}{\Delta t}\cdot d\mathbf{A}_e &= \sum \left(\alpha\mathbf{B}^n + \beta \mathbf{B}^{n+1}\right)\cdot d\mathbf{l}_b - \mathbf{j}^{n+1/2}\cdot d\mathbf{A}_e \\
+\frac{\mathbf{B}^{n+1} - \mathbf{B}^{n}}{\Delta t}\cdot d\mathbf{A}_b &= -\sum \left(\alpha \mathbf{E}^{n} + \beta\mathbf{E}^{n+1}\right)\cdot d\mathbf{l}_e
+\end{align}
+
+<p>
+where \(\alpha + \beta = 1\) and their ratio can be a tunable parameter
+determining the &ldquo;implicitness&rdquo; of the scheme. When \(\alpha = \beta = 1/2\), the
+scheme is also symmetric under time-reversal and is second order accurate in
+time. However, when \(\beta > 0.5\), it adds numerical damping to grid-scale
+perturbations, which is exactly what we need.
+</p>
+
+<p>
+To solve the semi-implicit system, one can substitute the first equation into the second, and obtain:
+</p>
+
+\begin{equation}
+\frac{\mathbf{B}^{n+1} - \mathbf{B}^{n}}{\Delta t}\cdot d\mathbf{A}_b = -\sum_e \left(\alpha \mathbf{E}^{n} + \beta \left[ \mathbf{E}^n + \frac{\Delta t}{dA_e} \left( \sum_b \left(\alpha\mathbf{B}^n + \beta \mathbf{B}^{n+1}\right)\cdot d\mathbf{l}_b - \mathbf{j}^{n+1/2} \right) \right]\right)\cdot d\mathbf{l}_e
+\end{equation}
+
+<p>
+Moving all \(\mathbf{B}^{n+1}\) terms to the left hand side, one can obtain an implicit equation for \(\mathbf{B}^{n+1}\):
+</p>
+
+\begin{equation}
+\left( 1 + \beta^2\Delta t^2 \mathcal{D} \right)\mathbf{B}^{n+1} = (1 - \alpha\beta \Delta t^2 \mathcal{D})\mathbf{B}^n - \frac{\Delta t}{dA_b}\sum_e\mathbf{E}^n\cdot d\mathbf{l}_e + \frac{\beta \Delta t^2}{dA_b}\sum_e\mathbf{j}^{n+1/2}\cdot d\mathbf{l}_e
+\end{equation}
+
+<p>
+where we define the operator \(\mathcal{D}\) for double circulation:
+</p>
+
+\begin{equation}
+\mathcal{D}\mathbf{B} = \frac{1}{dA_b}\sum_e \frac{dl_e}{dA_e}\sum_b d\mathbf{l}_b\cdot \mathbf{B}
+\end{equation}
+
+<p>
+The operator \((1 + \beta^2\Delta t^2\mathcal{D})\) on the left hand side of the implicit equation can be inverted using the formal expansion:
+</p>
+
+\begin{equation}
+(1 + \beta^2\Delta t^2\mathcal{D})^{-1} = 1 - (\beta^2\Delta t^2\mathcal{D}) - (\beta^2\Delta t^2\mathcal{D})^2 - (\beta^2\Delta t^2\mathcal{D})^{3} - \dots
+\end{equation}
+
+<p>
+Since each power is proportional to \(\Delta t^2\), this series converges rapidly. I find truncating it at around the 6th term gives a very accurate result. In practice, this solver is about \(4\sim 5\) times slower than the leap-frog solver. Since in PIC the timestep is dominated by particle push and deposit anyway, this is not a significant increase at all.
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org723651d" class="outline-2">
+<h2 id="org723651d"><span class="section-number-2">3</span> Comparison of Results</h2>
+<div class="outline-text-2" id="text-3">
+<p>
+I set up a very simple simulation to test these two solvers. I start with a monopolar \(\mathbf{B}\) field in vacuum, where \(B_r = B_p/r^2\). Then I apply a time-varying angular velocity on the stellar surface: \(\Omega(t) = \Omega_0\sin(2\pi k t)\). This angular velocity is set by applying a boundary condition \(E_{\theta} = -\Omega r \sin\theta B_r\) along the stellar boundary. The boundary condition is only applied between \(0 < t < 3R_{*}/c\), so that after a short time there is no longer energy injection. Outer boundary is a damping layer. Ideally one should see some waves launched near the star, propagating to the outer boundary, and flow out peacefully.
+</p>
+</div>
+
+<div id="outline-container-orgbb123d8" class="outline-3">
+<h3 id="orgbb123d8"><span class="section-number-3">3.1</span> \(k = 0.5\)</h3>
+<div class="outline-text-3" id="text-3-1">
+<video controls="controls" width="100%;">
+<source src="./spherical_wave/spherical_wave_k0.5.mp4" type="video/mp4">
+</video>
+
+<p>
+This is a case of relatively large wavelength. The two solvers behave almost identically. There is some small wavelength noises following the main wave, but nothing severe. The wave peacefully flows through the outer boundary without much reflection.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org0c05032" class="outline-3">
+<h3 id="org0c05032"><span class="section-number-3">3.2</span> \(k = 3.0\)</h3>
+<div class="outline-text-3" id="text-3-2">
+<video controls="controls" width="100%;">
+<source src="./spherical_wave/spherical_wave_k3.0.mp4" type="video/mp4">
+</video>
+
+<p>
+The wavelength has decreased by a factor of 6, and it makes a huge difference.
+The explicit solver conserves energy by allowing the small wavelength waves to
+reflect, creating a significant amount of trapped waves that cannot leave the
+box. The implicitness parameter \(\beta = 0.6\) in this simulation, and it is
+enough to damp out undesired waves. Due to the position where the waves reflect,
+it looks like the culprit could be simply a badly implemented damping layer. One
+could see that this is not the case by increasing \(k\) even more, so that the
+waves reflect even earlier.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org79c1c2b" class="outline-3">
+<h3 id="org79c1c2b"><span class="section-number-3">3.3</span> \(k = 10.0\)</h3>
+<div class="outline-text-3" id="text-3-3">
+<video controls="controls" width="100%;">
+<source src="./spherical_wave/spherical_wave_k10.0.mp4" type="video/mp4">
+</video>
+
+<p>
+In this case one can clearly see that most of the trapped waves in the explicit
+solver are trapped between \(1 < r < 15\). A small fraction of the waves are able
+to be transmitted to a larger radii and escape the box, but a significant
+fraction remains and keeps bouncing. There is some reflection in the implicit
+solver too but those waves are quickly damped away.
+</p>
+
+<p>
+One could argue that in the implicit solver, energy is not conserved. This is
+indeed true. However, this is a situation where you need to pick your poison:
+whether to allow undamped small scale fluctuations to develop unhindered, or to
+damp them out but sacrificing energy conservation. The answer probably depends
+on the application, but if the leap-frog solver is known to cause problems in
+long-term simulations then I think the semi-implicit solver should be used.
+</p>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>
